@@ -7,7 +7,7 @@ CAMINHO_ARQUIVO = "dados.json"
 
 root = tk.Tk()
 root.title("Gerenciador de Tarefas")
-root.geometry("300x400")
+root.geometry("300x450")
 
 
 def carregar_lista():
@@ -25,14 +25,25 @@ def salvar_dados(texto):
         json.dump(texto, arquivo, indent=4)
 
 
-def adicionar_tarefa(event=None):
-    texto = campo_texto.get().strip()
-    if texto == "":
+def remover_tarefa():
+    tarefas_selecionada = lista_box.curselection()
+    if not tarefas_selecionada:
         return
-    tarefas.append(texto)
-    lista_box.insert(tk.END, texto)
+    for tarefa in reversed(tarefas_selecionada):
+        tarefas.pop(tarefa)
     salvar_dados(tarefas)
+    atualizar_lista()
+
+
+def adicionar_tarefa(event=None):
+    tarefa = campo_texto.get().strip()
+    if tarefa == "":
+        return
+    tarefas.append(tarefa)
+    salvar_dados(tarefas)
+    atualizar_lista()
     campo_texto.delete(0, tk.END)
+    campo_texto.focus()
 
 
 def atualizar_lista():
@@ -60,10 +71,13 @@ botao_inserir_tarefa.pack(pady=5, fill="x")
 lista_box.pack(pady=10, fill="both", expand=True)
 
 tarefas = carregar_lista()
-lista = atualizar_lista()
+atualizar_lista()
 
+botao_remover_tarefa = ttk.Button(
+    janela, text="Remover", command=remover_tarefa)
+botao_remover_tarefa.pack(pady=5, fill="x")
 
 botao_sair = ttk.Button(janela, text="Quit", command=root.destroy)
-botao_sair.pack(anchor=tk.CENTER, fill="x")
+botao_sair.pack(pady=5, anchor=tk.CENTER, fill="x")
 
 root.mainloop()
