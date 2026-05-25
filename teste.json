@@ -1,6 +1,10 @@
 [
-   {
+    {
         "texto": "Estudar Python",
+        "concluida": "False"
+    },
+    {
+        "texto": "Academia",
         "concluida": "False"
     }
 ]

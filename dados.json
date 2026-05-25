@@ -1,5 +1,18 @@
 [
-    "Estudar por 1 hora",
-    "Organizar a mesa ou ambiente de trabalho",
-    "Fazer atividade fisica"
+    {
+        "texto": "Academia",
+        "concluida": false
+    },
+    {
+        "texto": "Estudar Python",
+        "concluida": true
+    },
+    {
+        "texto": "Dormir",
+        "concluida": false
+    },
+    {
+        "texto": "Teste",
+        "concluida": true
+    }
 ]

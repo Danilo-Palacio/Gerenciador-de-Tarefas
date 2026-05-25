@@ -1,33 +1,26 @@
 import json
 import os
-import tkinter as tk
 
 CAMINHO_ARQUIVO = "dados.json"
 
 
-def adicionar_tarefa(campo_texto, lista_box):
-    from interface import atualizar_lista
+def adicionar_tarefa(texto):
     tarefas = carregar_lista()
-    tarefa = campo_texto.get().strip()
-    if tarefa == "":
+    concluida = False
+    if texto == "":
         return
-    tarefas.append(tarefa)
+    texto_dicionario = {"texto": texto, "concluida": concluida}
+    tarefas.append(texto_dicionario)
     salvar_dados(tarefas)
-    atualizar_lista(lista_box)
-    campo_texto.delete(0, tk.END)
-    campo_texto.focus()
 
 
-def remover_tarefa(lista_box):
-    from interface import atualizar_lista
-    tarefas_selecionada = lista_box.curselection()
+def remover_tarefa(tarefa_selecionada):
     tarefas = carregar_lista()
-    if not tarefas_selecionada:
+    if not tarefa_selecionada:
         return
-    for tarefa in reversed(tarefas_selecionada):
+    for tarefa in reversed(tarefa_selecionada):
         tarefas.pop(tarefa)
     salvar_dados(tarefas)
-    atualizar_lista(lista_box)
 
 
 def carregar_lista():
@@ -40,6 +33,18 @@ def carregar_lista():
     return []
 
 
-def salvar_dados(texto):
+def salvar_dados(tarefas):
     with open(CAMINHO_ARQUIVO, "w") as arquivo:
-        json.dump(texto, arquivo, indent=4)
+        json.dump(tarefas, arquivo, indent=4)
+
+
+def concluir_tarefa(tarefa_selecionada):
+    tarefas = carregar_lista()
+    if not tarefa_selecionada:
+        return
+    for tarefa in tarefa_selecionada:
+        if not tarefas[tarefa]["concluida"]:
+            tarefas[tarefa]["concluida"] = True
+        else:
+            tarefas[tarefa]["concluida"] = False
+    salvar_dados(tarefas)
