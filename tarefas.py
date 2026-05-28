@@ -4,23 +4,30 @@ import os
 CAMINHO_ARQUIVO = "dados.json"
 
 
-def adicionar_tarefa(texto):
-    tarefas = carregar_lista()
+def adicionar_tarefa(texto, tarefas):
     concluida = False
     if texto == "":
         return
     texto_dicionario = {"texto": texto, "concluida": concluida}
     tarefas.append(texto_dicionario)
     salvar_dados(tarefas)
+    print(f" Tarefas do adicionar é: {tarefas}, isso é oque retorna")
+    return tarefas
 
 
-def remover_tarefa(tarefa_selecionada):
-    tarefas = carregar_lista()
+def remover_tarefa(tarefa_selecionada, tarefas):
     if not tarefa_selecionada:
         return
     for tarefa in reversed(tarefa_selecionada):
         tarefas.pop(tarefa)
     salvar_dados(tarefas)
+
+
+def alterar_tarefa(texto, tarefa_selecionada, tarefas):
+    for tarefa in tarefa_selecionada:
+        tarefas[tarefa].update({"texto": texto})
+    salvar_dados(tarefas)
+    return tarefas
 
 
 def carregar_lista():
@@ -30,7 +37,15 @@ def carregar_lista():
                 return json.load(arquivo)
         except json.JSONDecodeError:
             return []
-    return []
+        return []
+
+
+def obter_texto_tarefa(indice):
+    tarefas = carregar_lista()
+    if not indice:
+        return
+    for tarefa in indice:
+        return tarefas[tarefa]["texto"]
 
 
 def salvar_dados(tarefas):
@@ -38,8 +53,7 @@ def salvar_dados(tarefas):
         json.dump(tarefas, arquivo, indent=4)
 
 
-def concluir_tarefa(tarefa_selecionada):
-    tarefas = carregar_lista()
+def concluir_tarefa(tarefa_selecionada, tarefas):
     if not tarefa_selecionada:
         return
     for tarefa in tarefa_selecionada:
