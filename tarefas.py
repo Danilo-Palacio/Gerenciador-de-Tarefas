@@ -40,8 +40,25 @@ def carregar_lista():
         return []
 
 
-def obter_texto_tarefa(indice):
-    tarefas = carregar_lista()
+def filtro(status, tarefas):
+    tarefas_concluidas = []
+    for i in tarefas:
+        if status == "Concluidas":
+            teste = True
+        else:
+            teste = False
+
+        if teste == i["concluida"]:
+            tarefa = {"texto": i["texto"], "concluida": status}
+            tarefas_concluidas.append(tarefa)
+            continue
+        elif teste == i["concluida"]:
+            tarefas_concluidas.append(i["texto"])
+            continue
+    return tarefas_concluidas
+
+
+def obter_texto_tarefa(indice, tarefas):
     if not indice:
         return
     for tarefa in indice:

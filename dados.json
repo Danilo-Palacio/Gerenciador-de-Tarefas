@@ -1,7 +1,7 @@
 [
     {
         "texto": "Academia",
-        "concluida": true
+        "concluida": false
     },
     {
         "texto": "Dormir",
@@ -10,10 +10,6 @@
     {
         "texto": "Treininho",
         "concluida": true
-    },
-    {
-        "texto": "Teste",
-        "concluida": false
     },
     {
         "texto": "Estudar",

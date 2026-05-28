@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
-from tarefas import remover_tarefa, adicionar_tarefa, alterar_tarefa
+from tarefas import remover_tarefa, adicionar_tarefa, alterar_tarefa, filtro
 from tarefas import carregar_lista, concluir_tarefa, obter_texto_tarefa
 
 lista_tarefas = carregar_lista()
@@ -18,10 +18,8 @@ def atualizar_lista(list_box, lista_tarefas):
 
 
 def filtro_ativo(status, list_box, lista_tarefas):
-    lista_conluidos = carregar_lista("atualizar", status)
-    print(lista_conluidos)
-    print(status)
-    atualizar_lista(list_box, lista_tarefas)
+    lista_filtrada = filtro(status, lista_tarefas)
+    atualizar_lista(list_box, lista_filtrada)
 
 
 indices_visiveis = [1, 4, 7]
@@ -34,7 +32,6 @@ def adicionar(campo_texto, list_box, lista_tarefas):
     atualizar_lista(list_box, atualizar)
     campo_texto.delete(0, tk.END)
     campo_texto.focus()
-    print("Adicionou")
 
 
 def remover(list_box, lista_tarefas):
