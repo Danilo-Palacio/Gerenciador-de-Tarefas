@@ -8,10 +8,12 @@ def adicionar_tarefa(texto, tarefas):
     concluida = False
     if texto == "":
         return
-    texto_dicionario = {"texto": texto, "concluida": concluida}
+    texto_dicionario = {
+        "texto": texto,
+        "concluida": concluida
+        }
     tarefas.append(texto_dicionario)
     salvar_dados(tarefas)
-    print(f" Tarefas do adicionar é: {tarefas}, isso é oque retorna")
     return tarefas
 
 
@@ -21,6 +23,7 @@ def remover_tarefa(tarefa_selecionada, tarefas):
     for tarefa in reversed(tarefa_selecionada):
         tarefas.pop(tarefa)
     salvar_dados(tarefas)
+    return tarefas
 
 
 def alterar_tarefa(texto, tarefa_selecionada, tarefas):
@@ -42,28 +45,26 @@ def carregar_lista():
 
 def filtro(status, tarefas):
     tarefas_filtradas = []
-    for i in tarefas:
+    indices_visiveis = []
 
+    for indice, tarefa in enumerate(tarefas):
+        print(f"indice: {indice}")
+        print(f"tarefa: {tarefa}")
         if status == "Todas":
-            teste = i["concluida"]
+            teste = tarefa["concluida"]
         elif status == "Pendentes":
             teste = False
         elif status == "Concluidas":
             teste = True
-
         if status == "Todas":
-            tarefa = {"texto": i["texto"], "concluida": teste, }
             tarefas_filtradas.append(tarefa)
+            indices_visiveis.append(indice)
             continue
         else:
-            if teste == i["concluida"]:
-                tarefa = {"texto": i["texto"], "concluida": teste}
+            if teste == tarefa["concluida"]:
                 tarefas_filtradas.append(tarefa)
-                continue
-            elif teste == i["concluida"]:
-                tarefas_filtradas.append(i["texto"])
-                continue
-    return tarefas_filtradas
+                indices_visiveis.append(indice)
+    return tarefas_filtradas, indices_visiveis
 
 
 def obter_texto_tarefa(indice, tarefas):
@@ -87,3 +88,4 @@ def concluir_tarefa(tarefa_selecionada, tarefas):
         else:
             tarefas[tarefa]["concluida"] = False
     salvar_dados(tarefas)
+    return tarefas

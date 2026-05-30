@@ -4,11 +4,13 @@ from tarefas import remover_tarefa, adicionar_tarefa, alterar_tarefa, filtro
 from tarefas import carregar_lista, concluir_tarefa, obter_texto_tarefa
 
 lista_tarefas = carregar_lista()
+indices_visiveis = []
+ultimo_status = ["Todas"]
 
 
-def atualizar_lista(list_box, lista_tarefas):
+def mostrar_lista(list_box, lista):
     list_box.delete(0, tk.END)
-    for tarefa in lista_tarefas:
+    for tarefa in lista:
         concluida = tarefa["concluida"]
         if not concluida:
             texto = "[  ]"
@@ -18,32 +20,32 @@ def atualizar_lista(list_box, lista_tarefas):
 
 
 def filtro_ativo(status, list_box, lista_tarefas):
-    lista_filtrada = filtro(status, lista_tarefas)
-    atualizar_lista(list_box, lista_filtrada)
-
-
-indices_visiveis = [1, 4, 7]
+    lista_filtrada, visiveis = filtro(status, lista_tarefas)
+    indices_visiveis.clear()
+    indices_visiveis.extend(visiveis)
+    mostrar_lista(list_box, lista_filtrada)
+    ultimo_status.append(status)
+    return len(indices_visiveis)
 
 
 def adicionar(campo_texto, list_box, lista_tarefas):
-    print("Vai adicionar")
     texto = campo_texto.get().strip()
     atualizar = adicionar_tarefa(texto, lista_tarefas)
-    atualizar_lista(list_box, atualizar)
+    filtro_ativo(ultimo_status[0], list_box, atualizar)
     campo_texto.delete(0, tk.END)
     campo_texto.focus()
 
 
 def remover(list_box, lista_tarefas):
     tarefa_selecionada = list_box.curselection()
-    remover_tarefa(tarefa_selecionada, lista_tarefas)
-    atualizar_lista(list_box, lista_tarefas)
+    atualizar = remover_tarefa(tarefa_selecionada, lista_tarefas)
+    filtro_ativo(ultimo_status[0], list_box, atualizar)
 
 
 def concluir(list_box, lista_tarefas):
     tarefa_selecionada = list_box.curselection()
-    concluir_tarefa(tarefa_selecionada, lista_tarefas)
-    atualizar_lista(list_box, lista_tarefas)
+    atualizar = concluir_tarefa(tarefa_selecionada, lista_tarefas)
+    filtro_ativo(ultimo_status[0], list_box, atualizar)
 
 
 def alterar(texto, tarefa_selecionada, list_box, popup, lista_tarefas):
@@ -51,7 +53,7 @@ def alterar(texto, tarefa_selecionada, list_box, popup, lista_tarefas):
     if not texto_str:
         return
     atualizar = alterar_tarefa(texto_str, tarefa_selecionada, lista_tarefas)
-    atualizar_lista(list_box, atualizar)
+    mostrar_lista(list_box, atualizar)
     popup.destroy()
 
 
@@ -85,6 +87,11 @@ def iniciar_app():
     janela = ttk.Frame(root)
     list_box = tk.Listbox(janela)
 
+    todas = filtro_ativo("Todas", list_box, lista_tarefas)
+    concluidas = filtro_ativo("Concluidas", list_box, lista_tarefas)
+    pendentes = filtro_ativo("Pendentes", list_box, lista_tarefas)
+    print(todas)
+
     janela.pack(fill="both", expand=True, padx=10, pady=10)
 
     titulo = ttk.Label(janela, text="Gerenciador de Tarefas")
@@ -107,23 +114,23 @@ def iniciar_app():
     frame_botoes_filtro.pack(pady=5)
 
     botao_todas = ttk.Button(
-        frame_botoes_filtro, text="Todas",
+        frame_botoes_filtro, text=f"Todas ({todas})",
         command=lambda: filtro_ativo("Todas", list_box, lista_tarefas))
     botao_todas.pack(side=tk.LEFT)
 
     botao_concluidas = ttk.Button(
-        frame_botoes_filtro, text="Concluidas",
+        frame_botoes_filtro, text=f"Concluidas ({concluidas})",
         command=lambda: filtro_ativo("Concluidas", list_box, lista_tarefas))
     botao_concluidas.pack(side=tk.LEFT)
 
     botao_pendentes = ttk.Button(
-        frame_botoes_filtro, text="Pendentes",
+        frame_botoes_filtro, text=f"Pendentes ({pendentes})",
         command=lambda: filtro_ativo("Pendentes", list_box, lista_tarefas))
     botao_pendentes.pack(side=tk.LEFT)
 
     list_box.pack(pady=10, fill="both", expand=True)
 
-    atualizar_lista(list_box, lista_tarefas)
+    filtro_ativo(ultimo_status[0], list_box, lista_tarefas)
 
     frame_botoes_editar = tk.Frame(janela)
     frame_botoes_editar.pack(pady=5)
