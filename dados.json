@@ -9,7 +9,7 @@
     },
     {
         "texto": "Treininho",
-        "concluida": true
+        "concluida": false
     },
     {
         "texto": "Estudar",
@@ -17,6 +17,6 @@
     },
     {
         "texto": "Pegar a garrafa",
-        "concluida": false
+        "concluida": true
     }
 ]

@@ -41,21 +41,29 @@ def carregar_lista():
 
 
 def filtro(status, tarefas):
-    tarefas_concluidas = []
+    tarefas_filtradas = []
     for i in tarefas:
-        if status == "Concluidas":
-            teste = True
-        else:
-            teste = False
 
-        if teste == i["concluida"]:
-            tarefa = {"texto": i["texto"], "concluida": status}
-            tarefas_concluidas.append(tarefa)
+        if status == "Todas":
+            teste = i["concluida"]
+        elif status == "Pendentes":
+            teste = False
+        elif status == "Concluidas":
+            teste = True
+
+        if status == "Todas":
+            tarefa = {"texto": i["texto"], "concluida": teste, }
+            tarefas_filtradas.append(tarefa)
             continue
-        elif teste == i["concluida"]:
-            tarefas_concluidas.append(i["texto"])
-            continue
-    return tarefas_concluidas
+        else:
+            if teste == i["concluida"]:
+                tarefa = {"texto": i["texto"], "concluida": teste}
+                tarefas_filtradas.append(tarefa)
+                continue
+            elif teste == i["concluida"]:
+                tarefas_filtradas.append(i["texto"])
+                continue
+    return tarefas_filtradas
 
 
 def obter_texto_tarefa(indice, tarefas):
