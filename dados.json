@@ -4,15 +4,19 @@
         "concluida": false
     },
     {
-        "texto": "Treininhos",
-        "concluida": false
-    },
-    {
         "texto": "Fazer P\u00e3o",
         "concluida": true
     },
     {
         "texto": "Estudar",
         "concluida": true
+    },
+    {
+        "texto": "Teste",
+        "concluida": true
+    },
+    {
+        "texto": "Treininho",
+        "concluida": false
     }
 ]

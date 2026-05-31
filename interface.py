@@ -5,41 +5,38 @@ from tarefas import carregar_lista, concluir_tarefa, obter_texto_tarefa
 
 lista_tarefas = carregar_lista()
 indices_visiveis = []
+tarefas_visiveis = []
 
 
-def filtro_ativo(status, list_box, lista_tarefas):
-    lista_filtrada, visiveis = filtro(status, lista_tarefas)
-    indices_visiveis.clear()
-    indices_visiveis.extend(visiveis)
-    mostrar_lista(list_box, lista_filtrada, status)
-    return len(indices_visiveis)
-
-
-def mostrar_lista(list_box, lista, status):
-    list_box.delete(0, tk.END)
+def texto_list_box(lista, list_box):
+    print("função texto_list_box")
+    print("Alterou o list_box")
+    print(f"A lista enviada foi: {lista}")
     for tarefa in lista:
         concluida = tarefa["concluida"]
         if not concluida:
             texto = "[  ]"
         else:
             texto = "[X]"
-        list_box.insert(tk.END, f"{texto} {tarefa['texto']}")
-    return status
+        texto_completo = f"{texto} {tarefa['texto']}"
+        list_box.insert(tk.END, texto_completo)
 
 
-ultimo_status = "Todas"
+status_ativo = "Todas"
+print(f'ultimo_status: {status_ativo}')
 
 
 def indice_selecao(list_box):
+    print("função: indice_selecao")
     indice_escolhido = list_box.curselection()
     indice_real = indices_visiveis[indice_escolhido[0]]
     return indice_real
 
 
 def acao_tarefa(list_box, lista_tarefas, acao, campo_texto):
+    print("função: acao_tarefa")
     if acao != "adicionar":
-        indice_escolhido = list_box.curselection()
-        indice_real = indices_visiveis[indice_escolhido[0]]
+        indice_real = indice_selecao(list_box)
         if acao == "remover":
             atualizar = remover_tarefa(indice_real, lista_tarefas)
         elif acao == "concluir":
@@ -51,41 +48,69 @@ def acao_tarefa(list_box, lista_tarefas, acao, campo_texto):
         campo_texto.focus()
     else:
         return
-    filtro_ativo(ultimo_status, list_box, atualizar)
+    renderizar_tela(list_box, atualizar, status_ativo)
 
 
-def alterar(texto, indice_real, list_box, popup, lista_tarefas):
-    texto_str = texto.get().strip()
-    if not texto_str:
+def atualizar(entrada, indice_real, lista_tarefas, list_box):
+    print("função: atualizar")
+    entrada_str = entrada.get().strip()
+    atualizar = alterar_tarefa(entrada_str, indice_real, lista_tarefas)
+    renderizar_tela(list_box, atualizar, status_ativo)
+
+
+def alterar(entrada, indice_real):
+    print("função: alterar")
+    if not entrada:
         return
-    atualizar = alterar_tarefa(texto_str, indice_real, lista_tarefas)
-    filtro_ativo(ultimo_status, list_box, atualizar)
+    alterar_tarefa(entrada, indice_real, lista_tarefas)
+
+
+def fluxo_alterar(indice_real, entrada, popup, list_box):
+    print("função: fluxo_alterar")
+    entrada_str = entrada.get().strip()
+    alterar(entrada_str, indice_real)
+    renderizar = renderizar_tela(list_box, lista_tarefas, status_ativo)
     popup.destroy()
+    return renderizar
 
 
-def abrir_popup(root, list_box):
-    indice_escolhido = list_box.curselection()
-    indice_real = indices_visiveis[indice_escolhido[0]]
+def renderizar_tela(list_box, lista_tarefa, status_ativo):
+    status_ativo = status_ativo
+    print("função: renderizar_tela")
+    print(f'ultimo_status: {status_ativo}')
+    tarefas_filtradas, indices_filtrados = filtro(status_ativo, lista_tarefa)
+    indices_visiveis.clear()
+    indices_visiveis.extend(indices_filtrados)
+    tarefas_visiveis.append(tarefas_filtradas)
+    list_box.delete(0, tk.END)
+    texto_list_box(tarefas_filtradas, list_box)
+    return len(indices_filtrados)
 
-    tarefa = obter_texto_tarefa(indice_real, lista_tarefas)
+
+def interface_popup(root, list_box):
+    print("função: interface_popup")
+    indice_escolhido = indice_selecao(list_box)
+    tarefa = obter_texto_tarefa(indice_escolhido, lista_tarefas)
+
     popup = tk.Toplevel(root)
     popup.title("Editar Tarefa")
     popup.geometry("200x100")
 
     tk.Label(popup, text="Alterar tarefa").pack(pady=3)
+
     entrada = tk.Entry(popup)
     entrada.insert(0, tarefa)
     entrada.pack(padx=5, anchor=tk.CENTER, fill="x")
-    entrada.bind("<Return>", lambda e: alterar(
-        entrada, indice_real, list_box, popup, lista_tarefas))
+    entrada.bind("<Return>", lambda e: fluxo_alterar(
+        indice_escolhido, entrada, popup))
     botao_salvar = tk.Button(popup, text="Salvar",
-                             command=lambda: alterar(
-                                entrada, indice_real,
-                                list_box, popup, lista_tarefas))
+                             command=lambda: fluxo_alterar(
+                                 indice_escolhido, entrada, popup, list_box))
     botao_salvar.pack(pady=5, padx=5, anchor=tk.CENTER, fill="x")
 
 
 def iniciar_app():
+    print("função: iniciar_app")
     root = tk.Tk()
     root.title("Gerenciador de Tarefas")
     root.geometry("300x450")
@@ -93,9 +118,9 @@ def iniciar_app():
     janela = ttk.Frame(root)
     list_box = tk.Listbox(janela)
 
-    todas = filtro_ativo("Todas", list_box, lista_tarefas)
-    concluidas = filtro_ativo("Concluidas", list_box, lista_tarefas)
-    pendentes = filtro_ativo("Pendentes", list_box, lista_tarefas)
+    todas = renderizar_tela(list_box, lista_tarefas, "Todas")
+    concluidas = renderizar_tela(list_box, lista_tarefas, "Concluidas")
+    pendentes = renderizar_tela(list_box, lista_tarefas, "Pendentes")
 
     janela.pack(fill="both", expand=True, padx=10, pady=10)
 
@@ -121,22 +146,22 @@ def iniciar_app():
 
     botao_todas = ttk.Button(
         frame_botoes_filtro, text=f"Todas ({todas})",
-        command=lambda: filtro_ativo("Todas", list_box, lista_tarefas))
+        command=lambda: renderizar_tela(list_box, lista_tarefas, "Todas"))
     botao_todas.pack(side=tk.LEFT)
 
     botao_concluidas = ttk.Button(
         frame_botoes_filtro, text=f"Concluidas ({concluidas})",
-        command=lambda: filtro_ativo("Concluidas", list_box, lista_tarefas))
+        command=lambda: renderizar_tela(list_box, lista_tarefas, "Concluidas"))
     botao_concluidas.pack(side=tk.LEFT)
 
     botao_pendentes = ttk.Button(
         frame_botoes_filtro, text=f"Pendentes ({pendentes})",
-        command=lambda: filtro_ativo("Pendentes", list_box, lista_tarefas))
+        command=lambda: renderizar_tela(list_box, lista_tarefas, "Pendentes"))
     botao_pendentes.pack(side=tk.LEFT)
 
     list_box.pack(pady=10, fill="both", expand=True)
 
-    filtro_ativo(ultimo_status, list_box, lista_tarefas)
+    renderizar_tela(list_box, lista_tarefas, status_ativo)
 
     frame_botoes_editar = tk.Frame(janela)
     frame_botoes_editar.pack(pady=5)
@@ -149,7 +174,7 @@ def iniciar_app():
 
     botao_alterar_tarefa = ttk.Button(
         frame_botoes_editar, text="Alterar",
-        command=lambda: abrir_popup(root, list_box))
+        command=lambda: interface_popup(root, list_box))
     botao_alterar_tarefa.pack(side=tk.RIGHT)
 
     botao_concluir_tarefa = ttk.Button(

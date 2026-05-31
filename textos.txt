@@ -1,0 +1,26 @@
+def abrir_popup(root, list_box):
+    indice_real = indice_selecao(list_box)
+    tarefa = obter_texto_tarefa(indice_real, lista_tarefas)
+    popup = tk.Toplevel(root)
+    popup.title("Editar Tarefa")
+    popup.geometry("200x100")
+
+    tk.Label(popup, text="Alterar tarefa").pack(pady=3)
+    entrada = tk.Entry(popup)
+    entrada.insert(0, tarefa)
+    entrada.pack(padx=5, anchor=tk.CENTER, fill="x")
+    entrada.bind("<Return>", lambda e: alterar(
+        entrada, indice_real, popup, ))
+    botao_salvar = tk.Button(popup, text="Salvar",
+                             command=lambda:
+                             alterar(entrada, indice_real, popup))
+    botao_salvar.pack(pady=5, padx=5, anchor=tk.CENTER, fill="x")
+
+
+    indice_real = indice_selecao(list_box)
+    tarefa = obter_texto_tarefa(indice_real, lista_tarefas)
+    alterar(entrada, indice_real, popup)
+
+
+
+        popup.destroy()
