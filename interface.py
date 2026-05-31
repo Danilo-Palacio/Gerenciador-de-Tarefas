@@ -5,10 +5,17 @@ from tarefas import carregar_lista, concluir_tarefa, obter_texto_tarefa
 
 lista_tarefas = carregar_lista()
 indices_visiveis = []
-ultimo_status = ["Todas"]
 
 
-def mostrar_lista(list_box, lista):
+def filtro_ativo(status, list_box, lista_tarefas):
+    lista_filtrada, visiveis = filtro(status, lista_tarefas)
+    indices_visiveis.clear()
+    indices_visiveis.extend(visiveis)
+    mostrar_lista(list_box, lista_filtrada, status)
+    return len(indices_visiveis)
+
+
+def mostrar_lista(list_box, lista, status):
     list_box.delete(0, tk.END)
     for tarefa in lista:
         concluida = tarefa["concluida"]
@@ -17,50 +24,44 @@ def mostrar_lista(list_box, lista):
         else:
             texto = "[X]"
         list_box.insert(tk.END, f"{texto} {tarefa['texto']}")
+    return status
 
 
-def filtro_ativo(status, list_box, lista_tarefas):
-    lista_filtrada, visiveis = filtro(status, lista_tarefas)
-    indices_visiveis.clear()
-    indices_visiveis.extend(visiveis)
-    mostrar_lista(list_box, lista_filtrada)
-    ultimo_status.append(status)
-    return len(indices_visiveis)
+ultimo_status = "Todas"
 
 
-def adicionar(campo_texto, list_box, lista_tarefas):
-    texto = campo_texto.get().strip()
-    atualizar = adicionar_tarefa(texto, lista_tarefas)
-    filtro_ativo(ultimo_status[0], list_box, atualizar)
-    campo_texto.delete(0, tk.END)
-    campo_texto.focus()
+def acao_tarefa(list_box, lista_tarefas, acao, campo_texto):
+    if acao != "adicionar":
+        indice_escolhido = list_box.curselection()
+        indice_real = indices_visiveis[indice_escolhido[0]]
+        if acao == "remover":
+            atualizar = remover_tarefa(indice_real, lista_tarefas)
+        elif acao == "concluir":
+            atualizar = concluir_tarefa(indice_real, lista_tarefas)
+    elif acao == "adicionar":
+        texto = campo_texto.get().strip()
+        atualizar = adicionar_tarefa(texto, lista_tarefas)
+        campo_texto.delete(0, tk.END)
+        campo_texto.focus()
+    else:
+        return
+    filtro_ativo(ultimo_status, list_box, atualizar)
 
 
-def remover(list_box, lista_tarefas):
-    tarefa_selecionada = list_box.curselection()
-    atualizar = remover_tarefa(tarefa_selecionada, lista_tarefas)
-    filtro_ativo(ultimo_status[0], list_box, atualizar)
-
-
-def concluir(list_box, lista_tarefas):
-    tarefa_selecionada = list_box.curselection()
-    atualizar = concluir_tarefa(tarefa_selecionada, lista_tarefas)
-    filtro_ativo(ultimo_status[0], list_box, atualizar)
-
-
-def alterar(texto, tarefa_selecionada, list_box, popup, lista_tarefas):
+def alterar(texto, indice_real, list_box, popup, lista_tarefas):
     texto_str = texto.get().strip()
     if not texto_str:
         return
-    atualizar = alterar_tarefa(texto_str, tarefa_selecionada, lista_tarefas)
-    mostrar_lista(list_box, atualizar)
+    atualizar = alterar_tarefa(texto_str, indice_real, lista_tarefas)
+    filtro_ativo(ultimo_status, list_box, atualizar)
     popup.destroy()
 
 
 def abrir_popup(root, list_box):
-    tarefa_selecionada = list_box.curselection()
+    indice_escolhido = list_box.curselection()
+    indice_real = indices_visiveis[indice_escolhido[0]]
 
-    tarefa = obter_texto_tarefa(tarefa_selecionada)
+    tarefa = obter_texto_tarefa(indice_real, lista_tarefas)
     popup = tk.Toplevel(root)
     popup.title("Editar Tarefa")
     popup.geometry("200x100")
@@ -70,16 +71,15 @@ def abrir_popup(root, list_box):
     entrada.insert(0, tarefa)
     entrada.pack(padx=5, anchor=tk.CENTER, fill="x")
     entrada.bind("<Return>", lambda e: alterar(
-        entrada, tarefa_selecionada, list_box, popup, lista_tarefas))
+        entrada, indice_real, list_box, popup, lista_tarefas))
     botao_salvar = tk.Button(popup, text="Salvar",
                              command=lambda: alterar(
-                                entrada, tarefa_selecionada,
+                                entrada, indice_real,
                                 list_box, popup, lista_tarefas))
     botao_salvar.pack(pady=5, padx=5, anchor=tk.CENTER, fill="x")
 
 
 def iniciar_app():
-
     root = tk.Tk()
     root.title("Gerenciador de Tarefas")
     root.geometry("300x450")
@@ -90,7 +90,6 @@ def iniciar_app():
     todas = filtro_ativo("Todas", list_box, lista_tarefas)
     concluidas = filtro_ativo("Concluidas", list_box, lista_tarefas)
     pendentes = filtro_ativo("Pendentes", list_box, lista_tarefas)
-    print(todas)
 
     janela.pack(fill="both", expand=True, padx=10, pady=10)
 
@@ -103,11 +102,12 @@ def iniciar_app():
     campo_texto = ttk.Entry(frame_campo_inserir)
     campo_texto.pack(fill="x")
     campo_texto.bind("<Return>",
-                     lambda e: adicionar(campo_texto, list_box, lista_tarefas))
+                     lambda e: acao_tarefa(
+                         list_box, lista_tarefas, "adicionar", campo_texto))
 
     botao_inserir_tarefa = ttk.Button(
-        frame_campo_inserir, text="Inserir", command=lambda: adicionar(
-            campo_texto, list_box, lista_tarefas))
+        frame_campo_inserir, text="Inserir", command=lambda: acao_tarefa(
+                         list_box, lista_tarefas, "adicionar", campo_texto))
     botao_inserir_tarefa.pack(pady=1, fill="x")
 
     frame_botoes_filtro = tk.Frame(janela)
@@ -130,14 +130,15 @@ def iniciar_app():
 
     list_box.pack(pady=10, fill="both", expand=True)
 
-    filtro_ativo(ultimo_status[0], list_box, lista_tarefas)
+    filtro_ativo(ultimo_status, list_box, lista_tarefas)
 
     frame_botoes_editar = tk.Frame(janela)
     frame_botoes_editar.pack(pady=5)
 
     botao_remover_tarefa = ttk.Button(
         frame_botoes_editar, text="Remover",
-        command=lambda: remover(list_box, lista_tarefas))
+        command=lambda: acao_tarefa(
+            list_box, lista_tarefas, "remover", campo_texto))
     botao_remover_tarefa.pack(side=tk.LEFT)
 
     botao_alterar_tarefa = ttk.Button(
@@ -147,7 +148,8 @@ def iniciar_app():
 
     botao_concluir_tarefa = ttk.Button(
         janela, text="Concluir",
-        command=lambda: concluir(list_box, lista_tarefas))
+        command=lambda: acao_tarefa(
+            list_box, lista_tarefas, "concluir", campo_texto))
     botao_concluir_tarefa.pack(pady=5, fill="x")
 
     botao_sair = ttk.Button(janela, text="Quit", command=root.destroy)

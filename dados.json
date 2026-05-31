@@ -8,15 +8,15 @@
         "concluida": false
     },
     {
-        "texto": "Estudar",
-        "concluida": true
-    },
-    {
-        "texto": "Pegar a garrafa",
-        "concluida": true
-    },
-    {
         "texto": "Fazer P\u00e3o",
+        "concluida": true
+    },
+    {
+        "texto": "Estudar",
+        "concluida": false
+    },
+    {
+        "texto": "Teste",
         "concluida": true
     }
 ]

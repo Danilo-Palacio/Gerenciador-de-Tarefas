@@ -20,15 +20,24 @@ def adicionar_tarefa(texto, tarefas):
 def remover_tarefa(tarefa_selecionada, tarefas):
     if not tarefa_selecionada:
         return
-    for tarefa in reversed(tarefa_selecionada):
-        tarefas.pop(tarefa)
+    tarefas.pop(tarefa_selecionada)
     salvar_dados(tarefas)
     return tarefas
 
 
-def alterar_tarefa(texto, tarefa_selecionada, tarefas):
-    for tarefa in tarefa_selecionada:
-        tarefas[tarefa].update({"texto": texto})
+def concluir_tarefa(tarefa_selecionada, tarefas):
+    if not tarefa_selecionada:
+        return
+    if not tarefas[tarefa_selecionada]["concluida"]:
+        tarefas[tarefa_selecionada]["concluida"] = True
+    else:
+        tarefas[tarefa_selecionada]["concluida"] = False
+    salvar_dados(tarefas)
+    return tarefas
+
+
+def alterar_tarefa(texto, indice_real, tarefas):
+    tarefas[indice_real].update({"texto": texto})
     salvar_dados(tarefas)
     return tarefas
 
@@ -43,19 +52,18 @@ def carregar_lista():
         return []
 
 
-def filtro(status, tarefas):
+def filtro(status, lista_tarefas):
     tarefas_filtradas = []
     indices_visiveis = []
-
-    for indice, tarefa in enumerate(tarefas):
-        print(f"indice: {indice}")
-        print(f"tarefa: {tarefa}")
+    teste = status
+    for indice, tarefa in enumerate(lista_tarefas):
         if status == "Todas":
             teste = tarefa["concluida"]
         elif status == "Pendentes":
             teste = False
         elif status == "Concluidas":
             teste = True
+
         if status == "Todas":
             tarefas_filtradas.append(tarefa)
             indices_visiveis.append(indice)
@@ -64,28 +72,15 @@ def filtro(status, tarefas):
             if teste == tarefa["concluida"]:
                 tarefas_filtradas.append(tarefa)
                 indices_visiveis.append(indice)
-    return tarefas_filtradas, indices_visiveis
+    return indices_visiveis
 
 
 def obter_texto_tarefa(indice, tarefas):
     if not indice:
         return
-    for tarefa in indice:
-        return tarefas[tarefa]["texto"]
+    return tarefas[indice]["texto"]
 
 
 def salvar_dados(tarefas):
     with open(CAMINHO_ARQUIVO, "w") as arquivo:
         json.dump(tarefas, arquivo, indent=4)
-
-
-def concluir_tarefa(tarefa_selecionada, tarefas):
-    if not tarefa_selecionada:
-        return
-    for tarefa in tarefa_selecionada:
-        if not tarefas[tarefa]["concluida"]:
-            tarefas[tarefa]["concluida"] = True
-        else:
-            tarefas[tarefa]["concluida"] = False
-    salvar_dados(tarefas)
-    return tarefas
