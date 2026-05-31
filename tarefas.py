@@ -72,7 +72,7 @@ def filtro(status, lista_tarefas):
             if teste == tarefa["concluida"]:
                 tarefas_filtradas.append(tarefa)
                 indices_visiveis.append(indice)
-    return indices_visiveis
+    return tarefas_filtradas, indices_visiveis
 
 
 def obter_texto_tarefa(indice, tarefas):
@@ -84,3 +84,5 @@ def obter_texto_tarefa(indice, tarefas):
 def salvar_dados(tarefas):
     with open(CAMINHO_ARQUIVO, "w") as arquivo:
         json.dump(tarefas, arquivo, indent=4)
+
+

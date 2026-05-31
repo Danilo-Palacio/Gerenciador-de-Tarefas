@@ -4,7 +4,7 @@
         "concluida": false
     },
     {
-        "texto": "Treininho",
+        "texto": "Treininhos",
         "concluida": false
     },
     {
@@ -13,10 +13,6 @@
     },
     {
         "texto": "Estudar",
-        "concluida": false
-    },
-    {
-        "texto": "Teste",
         "concluida": true
     }
 ]

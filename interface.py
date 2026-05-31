@@ -30,6 +30,12 @@ def mostrar_lista(list_box, lista, status):
 ultimo_status = "Todas"
 
 
+def indice_selecao(list_box):
+    indice_escolhido = list_box.curselection()
+    indice_real = indices_visiveis[indice_escolhido[0]]
+    return indice_real
+
+
 def acao_tarefa(list_box, lista_tarefas, acao, campo_texto):
     if acao != "adicionar":
         indice_escolhido = list_box.curselection()
