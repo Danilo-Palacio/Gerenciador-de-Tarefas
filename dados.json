@@ -1,22 +1,26 @@
 [
     {
+        "texto": "Estudar",
+        "concluida": false
+    },
+    {
+        "texto": "Treininho",
+        "concluida": true
+    },
+    {
+        "texto": "Tentar dormir",
+        "concluida": true
+    },
+    {
         "texto": "Academia",
         "concluida": false
     },
     {
-        "texto": "Fazer P\u00e3o",
+        "texto": "Fazer p\u00e3o",
         "concluida": true
     },
     {
-        "texto": "Estudar",
+        "texto": "Assistir Serie",
         "concluida": true
-    },
-    {
-        "texto": "Teste",
-        "concluida": true
-    },
-    {
-        "texto": "Treininho",
-        "concluida": false
     }
 ]

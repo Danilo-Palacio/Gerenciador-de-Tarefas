@@ -1,26 +1,10 @@
-def abrir_popup(root, list_box):
-    indice_real = indice_selecao(list_box)
-    tarefa = obter_texto_tarefa(indice_real, lista_tarefas)
-    popup = tk.Toplevel(root)
-    popup.title("Editar Tarefa")
-    popup.geometry("200x100")
+    botao0 = len(filtrar_tarefas("Todas")[0])
+    botoes_filtro[0].config(text=f"Todas ({botao0})")
 
-    tk.Label(popup, text="Alterar tarefa").pack(pady=3)
-    entrada = tk.Entry(popup)
-    entrada.insert(0, tarefa)
-    entrada.pack(padx=5, anchor=tk.CENTER, fill="x")
-    entrada.bind("<Return>", lambda e: alterar(
-        entrada, indice_real, popup, ))
-    botao_salvar = tk.Button(popup, text="Salvar",
-                             command=lambda:
-                             alterar(entrada, indice_real, popup))
-    botao_salvar.pack(pady=5, padx=5, anchor=tk.CENTER, fill="x")
+    botao1 = len(filtrar_tarefas("Concluidas")[0])
+    botoes_filtro[1].config(text=f"Concluidas ({botao1})")
+
+    botao2 = len(filtrar_tarefas("Pendentes")[0])
+    botoes_filtro[2].config(text=f"Pendentes ({botao2})")
 
 
-    indice_real = indice_selecao(list_box)
-    tarefa = obter_texto_tarefa(indice_real, lista_tarefas)
-    alterar(entrada, indice_real, popup)
-
-
-
-        popup.destroy()
