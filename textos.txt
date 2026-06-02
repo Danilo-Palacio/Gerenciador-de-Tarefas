@@ -1,10 +1,7 @@
-    botao0 = len(filtrar_tarefas("Todas")[0])
-    botoes_filtro[0].config(text=f"Todas ({botao0})")
-
-    botao1 = len(filtrar_tarefas("Concluidas")[0])
-    botoes_filtro[1].config(text=f"Concluidas ({botao1})")
-
-    botao2 = len(filtrar_tarefas("Pendentes")[0])
-    botoes_filtro[2].config(text=f"Pendentes ({botao2})")
-
-
+renderizar_tela()
+↓
+filtrar por status
+↓
+filtrar por texto
+↓
+mostrar na listbox

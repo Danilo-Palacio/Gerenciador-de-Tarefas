@@ -49,6 +49,7 @@ def carregar_lista():
 
 
 def filtro(status, lista_tarefas):
+    print(f"Teste: {lista_tarefas}")
     tarefas_filtradas = []
     indices_filtrados = []
     teste = status

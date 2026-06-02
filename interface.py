@@ -52,19 +52,20 @@ def acao_tarefa(list_box, acao, campo_texto, botoes_filtro):
     else:
         return
     atualizar_botao_filtro(botoes_filtro)
-    renderizar_tela(list_box, status_ativo)
+    renderizar_tela(list_box, status_ativo, lista_tarefas)
 
 
 def botao_filtro(status, list_box):
+    print(f"Testando o Keyrelease {status} e {list_box}")
     global status_ativo
     status_ativo = status
-    renderizar_tela(list_box, status_ativo)
+    renderizar_tela(list_box, status_ativo, lista_tarefas)
     return
 
 
 def atualizar_botao_filtro(botoes_filtro):
     for chave, valor in botoes_filtro.items():
-        botao0 = filtrar_tarefas(chave)
+        botao0 = filtrar_tarefas(chave, lista_tarefas)
         valor.config(text=f"{chave} ({len(botao0[0])})")
 
 
@@ -73,18 +74,29 @@ def fluxo_alterar(indice_real, entrada, popup, list_box):
     if not entrada_str:
         return
     alterar_tarefa(entrada_str, indice_real, lista_tarefas)
-    renderizar_tela(list_box, status_ativo)
+    renderizar_tela(list_box, status_ativo, lista_tarefas)
     popup.destroy()
 
 
-def filtrar_tarefas(status):
-    indices_filtrados, tarefas_filtradas = filtro(status, lista_tarefas)
+def filtrar_tarefas(status, lista):
+    indices_filtrados, tarefas_filtradas = filtro(status, lista)
     return indices_filtrados, tarefas_filtradas
 
 
-def renderizar_tela(list_box, status):
+def pesquisa(texto, list_box):
+    texto_busca = []
+    if texto != "":
+        for tarefa in lista_tarefas:
+            if texto.lower() in tarefa["texto"].lower():
+                texto_busca.append(tarefa)
+        renderizar_tela(list_box, status_ativo, texto_busca)
+    else:
+        renderizar_tela(list_box, status_ativo, lista_tarefas)
+
+
+def renderizar_tela(list_box, status, lista_tarefas):
     indices_filtrados, tarefas_filtradas = filtrar_tarefas(
-        status)
+        status, lista_tarefas)
     indices_visiveis.clear()
     indices_visiveis.extend(indices_filtrados)
     list_box.delete(0, tk.END)
@@ -111,6 +123,7 @@ def interface_popup(root, list_box):
     entrada.pack(padx=5, anchor=tk.CENTER, fill="x")
     entrada.bind("<Return>", lambda e: fluxo_alterar(
         indice_real, entrada, popup, list_box))
+
     botao_salvar = tk.Button(popup, text="Salvar",
                              command=lambda: fluxo_alterar(
                                  indice_real, entrada, popup, list_box))
@@ -131,11 +144,21 @@ def iniciar_app():
     titulo = ttk.Label(janela, text="Gerenciador de Tarefas")
     titulo.pack(padx=10, pady=10, anchor=tk.CENTER)
 
+    campo_pesquisa = tk.Entry(janela)
+    campo_pesquisa.insert(0, "Buscar tarefa...")
+    campo_pesquisa.pack(pady=5, fill="x")
+    campo_pesquisa.bind("<FocusIn>",
+                        lambda e: campo_pesquisa.delete(0, tk.END))
+    campo_pesquisa.bind("<KeyRelease>",
+                        lambda e: pesquisa(campo_pesquisa.get(), list_box))
+
     frame_campo_inserir = tk.Frame(janela)
     frame_campo_inserir.pack(pady=5, fill="x")
 
     campo_texto = ttk.Entry(frame_campo_inserir)
+    campo_texto.insert(0, "Digite uma nova tarefa")
     campo_texto.pack(fill="x")
+    campo_texto.bind("<FocusIn>", lambda e: campo_texto.delete(0, tk.END))
     campo_texto.bind("<Return>",
                      lambda e: acao_tarefa(
                          list_box,
@@ -173,7 +196,7 @@ def iniciar_app():
         }
 
     atualizar_botao_filtro(botoes_filtro)
-    renderizar_tela(list_box, "Todas")
+    renderizar_tela(list_box, "Todas", lista_tarefas)
 
     frame_botoes_editar = tk.Frame(janela)
     frame_botoes_editar.pack(pady=5)
