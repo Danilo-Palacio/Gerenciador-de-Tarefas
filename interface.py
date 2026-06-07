@@ -7,11 +7,21 @@ from tarefas import carregar_lista, concluir_tarefa, obter_texto_tarefa
 lista_tarefas = carregar_lista()
 indices_visiveis = []
 status_ativo = "Todas"
+texto_pesquisa = ""
 
 
-def renderizar_tela(indice, list_box):
-    indices_visiveis.clear()
-    list_box.delete(0, tk.END)
+def atualizar_interface(list_box):
+    global indices_visiveis
+    indices_filtrados = filtro(status_ativo, lista_tarefas)
+    busca = pesquisa(texto_pesquisa, indices_filtrados)
+    indices_finais = busca
+    indices_visiveis = indices_finais
+    texto_render = texto_listbox(indices_finais)
+    renderizar_tela(texto_render, list_box)
+
+
+def texto_listbox(indice):
+    lista_completa = []
     for tarefa in indice:
         concluida = lista_tarefas[tarefa]["concluida"]
         if not concluida:
@@ -23,11 +33,17 @@ def renderizar_tela(indice, list_box):
             f"[{prioridade}] | [{texto}] "
             f"{lista_tarefas[tarefa]['texto']}"
         )
-        list_box.insert(tk.END, texto_completo)
-    indices_visiveis.extend(indice)
+        lista_completa.append(texto_completo)
+    return lista_completa
 
 
-def indice_selecao(list_box):
+def renderizar_tela(texto_render, list_box):
+    list_box.delete(0, tk.END)
+    for tarefa in texto_render:
+        list_box.insert(tk.END, tarefa)
+
+
+def indice_selecionado(list_box):
     indice_escolhido = list_box.curselection()
     if indice_escolhido == ():
         messagebox.showerror(
@@ -42,7 +58,7 @@ def indice_selecao(list_box):
 
 def acao_tarefa(list_box, acao, campo_texto, botoes_filtro, combo_prioridade):
     if acao != "adicionar":
-        indice_real = indice_selecao(list_box)
+        indice_real = indice_selecionado(list_box)
         if indice_real is None:
             return
         else:
@@ -52,7 +68,7 @@ def acao_tarefa(list_box, acao, campo_texto, botoes_filtro, combo_prioridade):
                 concluir_tarefa(indice_real, lista_tarefas)
 
     elif acao == "adicionar":
-        prioridade = combo_prioridade.get("prioridade", "Baixa")
+        prioridade = combo_prioridade.get()
         texto = campo_texto.get().strip()
         adicionar_tarefa(texto, lista_tarefas, prioridade)
         campo_texto.delete(0, tk.END)
@@ -60,21 +76,12 @@ def acao_tarefa(list_box, acao, campo_texto, botoes_filtro, combo_prioridade):
     else:
         return
     atualizar_botao_filtro(botoes_filtro)
-    chamar_filtro(status_ativo, list_box)
-
-
-def chamar_filtro(status, list_box):
-    global status_ativo
-    status_ativo = status
-    indices_filtrados = filtrar_tarefas(
-        status, lista_tarefas)
-    renderizar_tela(indices_filtrados, list_box)
-    return indices_filtrados
+    atualizar_interface(list_box)
 
 
 def atualizar_botao_filtro(botoes_filtro):
     for chave, valor in botoes_filtro.items():
-        botao0 = filtrar_tarefas(chave, lista_tarefas)
+        botao0 = filtro(chave, lista_tarefas)
         valor.config(text=f"{chave} ({len(botao0)})")
 
 
@@ -84,30 +91,36 @@ def fluxo_alterar(indice_real, entrada, popup, list_box, combo_prioridade):
     if not entrada_str:
         return
     alterar_tarefa(entrada_str, indice_real, lista_tarefas, prioridade)
-    chamar_filtro(status_ativo, list_box)
+    atualizar_interface(list_box)
     popup.destroy()
 
 
-def filtrar_tarefas(status, lista):
-    indices_filtrados = filtro(status, lista)
-    return indices_filtrados
-
-
-def pesquisa(texto, list_box):
+def pesquisa(pesquisa, indices_filtrados):
     indice_busca = []
-    indice_status = chamar_filtro(status_ativo, list_box)
-    if texto != "":
-        for tarefa in indice_status:
-            if texto.lower() in lista_tarefas[tarefa]["texto"].lower():
+    if pesquisa != "":
+        for tarefa in indices_filtrados:
+            if pesquisa.lower() in lista_tarefas[tarefa]["texto"].lower():
                 indice_busca.append(tarefa)
-        renderizar_tela(indice_busca, list_box)
+        return indice_busca
     else:
-        renderizar_tela(indice_status, list_box)
+        return indices_filtrados
+
+
+def atualiza_pesquisa(texto, list_box):
+    global texto_pesquisa
+    texto_pesquisa = texto
+    atualizar_interface(list_box)
+
+
+def atualiza_status(status, list_box):
+    global status_ativo
+    status_ativo = status
+    atualizar_interface(list_box)
 
 
 def interface_popup(root, list_box):
 
-    indice_real = indice_selecao(list_box)
+    indice_real = indice_selecionado(list_box)
     if indice_real is None:
         return
 
@@ -167,7 +180,9 @@ def iniciar_app():
     campo_pesquisa.bind("<FocusIn>",
                         lambda e: campo_pesquisa.delete(0, tk.END))
     campo_pesquisa.bind("<KeyRelease>",
-                        lambda e: pesquisa(campo_pesquisa.get(), list_box))
+                        lambda e: atualiza_pesquisa(
+                            campo_pesquisa.get(),
+                            list_box))
 
     frame_campo_inserir = tk.Frame(janela)
     frame_campo_inserir.pack(pady=5, fill="x")
@@ -206,17 +221,17 @@ def iniciar_app():
 
     botao_todas = ttk.Button(
         frame_botoes_filtro, text="Todas",
-        command=lambda: chamar_filtro("Todas", list_box))
+        command=lambda: atualiza_status("Todas", list_box))
     botao_todas.pack(side=tk.LEFT)
 
     botao_concluidas = ttk.Button(
         frame_botoes_filtro, text="Concluidas",
-        command=lambda: chamar_filtro("Concluidas", list_box))
+        command=lambda: atualiza_status("Concluidas", list_box))
     botao_concluidas.pack(side=tk.LEFT)
 
     botao_pendentes = ttk.Button(
         frame_botoes_filtro, text="Pendentes",
-        command=lambda: chamar_filtro("Pendentes", list_box))
+        command=lambda: atualiza_status("Pendentes", list_box))
     botao_pendentes.pack(side=tk.LEFT)
 
     list_box.pack(pady=10, fill="both", expand=True)
@@ -228,7 +243,7 @@ def iniciar_app():
         }
 
     atualizar_botao_filtro(botoes_filtro)
-    chamar_filtro(status_ativo, list_box)
+    atualizar_interface(list_box)
 
     frame_botoes_editar = tk.Frame(janela)
     frame_botoes_editar.pack(pady=5)
