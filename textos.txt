@@ -1,7 +1,19 @@
-renderizar_tela()
+lista completa
 ↓
-filtrar por status
+filtro status
 ↓
-filtrar por texto
+filtro busca
 ↓
-mostrar na listbox
+ordenação
+↓
+renderização
+
+
+
+
+Cada etapa:
+
+recebe dados
+devolve dados
+
+Sem efeitos colaterais.

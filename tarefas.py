@@ -4,13 +4,14 @@ import os
 CAMINHO_ARQUIVO = "dados.json"
 
 
-def adicionar_tarefa(texto, tarefas):
+def adicionar_tarefa(texto, tarefas, prioridade):
     concluida = False
     if texto == "":
         return
     texto_dicionario = {
         "texto": texto,
-        "concluida": concluida
+        "concluida": concluida,
+        "prioridade": prioridade
         }
     tarefas.append(texto_dicionario)
     salvar_dados(tarefas)
@@ -32,8 +33,9 @@ def concluir_tarefa(tarefa_selecionada, tarefas):
     return tarefas
 
 
-def alterar_tarefa(entrada_str, indice_real, tarefas):
+def alterar_tarefa(entrada_str, indice_real, tarefas, prioridade):
     tarefas[indice_real].update({"texto": entrada_str})
+    tarefas[indice_real].update({"prioridade": prioridade})
     salvar_dados(tarefas)
     return tarefas
 
@@ -49,26 +51,18 @@ def carregar_lista():
 
 
 def filtro(status, lista_tarefas):
-    print(f"Teste: {lista_tarefas}")
-    tarefas_filtradas = []
     indices_filtrados = []
-    teste = status
     for indice, tarefa in enumerate(lista_tarefas):
         if status == "Todas":
-            teste = tarefa["concluida"]
-        elif status == "Pendentes":
-            teste = False
-        elif status == "Concluidas":
-            teste = True
-        if status == "Todas":
-            tarefas_filtradas.append(tarefa)
             indices_filtrados.append(indice)
-            continue
-        else:
-            if teste == tarefa["concluida"]:
-                tarefas_filtradas.append(tarefa)
+        elif status == "Pendentes":
+            if not tarefa['concluida']:
                 indices_filtrados.append(indice)
-    return indices_filtrados, tarefas_filtradas
+        elif status == "Concluidas":
+            if tarefa['concluida']:
+                indices_filtrados.append(indice)
+
+    return indices_filtrados
 
 
 def obter_texto_tarefa(indice, tarefas):
