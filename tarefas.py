@@ -4,6 +4,18 @@ import os
 CAMINHO_ARQUIVO = "dados.json"
 
 
+def ordenar_alfabetica(indices_visiveis):
+    lista_tarefas = carregar_lista()
+    lista_ordenada = lista_tarefas.copy()
+    lista_ordenada.sort(key=lambda lista_ordenada: lista_ordenada["texto"])
+    indices_ordenados = []
+    for indice, valor in enumerate(lista_ordenada):
+        for i, v in enumerate(indices_visiveis):
+            if valor['texto'] in lista_tarefas[v]['texto']:
+                indices_ordenados.append(v)
+    return indices_ordenados
+
+
 def adicionar_tarefa(texto, tarefas, prioridade):
     concluida = False
     if texto == "":

@@ -3,11 +3,24 @@ from tkinter import ttk
 from tkinter import messagebox
 from tarefas import remover_tarefa, adicionar_tarefa, alterar_tarefa, filtro
 from tarefas import carregar_lista, concluir_tarefa, obter_texto_tarefa
+from tarefas import ordenar_alfabetica
 
 lista_tarefas = carregar_lista()
 indices_visiveis = []
 status_ativo = "Todas"
 texto_pesquisa = ""
+ordenacao_ativa = ""
+
+
+def ordenacao(text, indices):
+    if text == "Alfabética":
+        print(f'ordenou para: {text}')
+        ordenado = ordenar_alfabetica(indices)
+        print(f"indices: {ordenado}")
+        return ordenado
+    else:
+        print('Ainda não fez')
+        return indices
 
 
 def atualizar_interface(list_box):
@@ -15,8 +28,11 @@ def atualizar_interface(list_box):
     indices_filtrados = filtro(status_ativo, lista_tarefas)
     busca = pesquisa(texto_pesquisa, indices_filtrados)
     indices_finais = busca
-    indices_visiveis = indices_finais
-    texto_render = texto_listbox(indices_finais)
+    ordenado = ordenacao(ordenacao_ativa, indices_finais)
+    print(f'ordenado: {ordenado}')
+    indices_visiveis = ordenado
+    print(f'indices_visiveis: {indices_visiveis}')
+    texto_render = texto_listbox(indices_visiveis)
     renderizar_tela(texto_render, list_box)
 
 
@@ -118,6 +134,21 @@ def atualiza_status(status, list_box):
     atualizar_interface(list_box)
 
 
+def interface_botao_ordenacao(status, list_box):
+    global ordenacao_ativa
+    text = status.cget("text")
+    if text == "Prioridade":
+        status.config(text="Alfabética")
+        ordenacao_ativa = "Alfabética"
+    elif text == "Alfabética":
+        status.config(text="Pendentes")
+        ordenacao_ativa = "Pendentes"
+    elif text == "Pendentes":
+        status.config(text="Prioridade")
+        ordenacao_ativa = "Prioridade"
+    atualizar_interface(list_box)
+
+
 def interface_popup(root, list_box):
 
     indice_real = indice_selecionado(list_box)
@@ -174,7 +205,10 @@ def iniciar_app():
     titulo = ttk.Label(janela, text="Gerenciador de Tarefas")
     titulo.pack(padx=10, pady=10, anchor=tk.CENTER)
 
-    campo_pesquisa = tk.Entry(janela)
+    frame_pesquisa = tk.Frame(janela)
+    frame_pesquisa.pack(pady=5, fill="x")
+
+    campo_pesquisa = tk.Entry(frame_pesquisa)
     campo_pesquisa.insert(0, "Buscar tarefa...")
     campo_pesquisa.pack(pady=5, fill="x")
     campo_pesquisa.bind("<FocusIn>",
@@ -183,6 +217,12 @@ def iniciar_app():
                         lambda e: atualiza_pesquisa(
                             campo_pesquisa.get(),
                             list_box))
+
+    botao_ordenacao = tk.Button(frame_pesquisa,
+                                text="Prioridade",
+                                command=lambda: interface_botao_ordenacao(
+                                    botao_ordenacao, list_box))
+    botao_ordenacao.pack(fill="x")
 
     frame_campo_inserir = tk.Frame(janela)
     frame_campo_inserir.pack(pady=5, fill="x")
@@ -205,7 +245,7 @@ def iniciar_app():
         state='readonly'
     )
     combo_prioridade.set("Baixa")
-    combo_prioridade.pack()
+    combo_prioridade.pack(side=tk.LEFT)
 
     botao_inserir_tarefa = ttk.Button(
         frame_campo_inserir, text="Inserir", command=lambda: acao_tarefa(
@@ -214,7 +254,7 @@ def iniciar_app():
                          campo_texto,
                          botoes_filtro,
                          combo_prioridade))
-    botao_inserir_tarefa.pack(pady=1, fill="x")
+    botao_inserir_tarefa.pack(side=tk.LEFT, fill="x")
 
     frame_botoes_filtro = tk.Frame(janela)
     frame_botoes_filtro.pack(pady=5)
