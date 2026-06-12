@@ -4,12 +4,59 @@ import os
 CAMINHO_ARQUIVO = "dados.json"
 
 
+def carregar_lista():
+    if os.path.exists(CAMINHO_ARQUIVO):
+        try:
+            with open(CAMINHO_ARQUIVO, "r") as arquivo:
+                return json.load(arquivo)
+        except json.JSONDecodeError:
+            return []
+        return []
+
+
+lista_tarefas = carregar_lista()
+
+
 def ordenar_alfabetica(indices_visiveis):
-    lista_tarefas = carregar_lista()
     lista_ordenada = lista_tarefas.copy()
     lista_ordenada.sort(key=lambda lista_ordenada: lista_ordenada["texto"])
     indices_ordenados = []
     for indice, valor in enumerate(lista_ordenada):
+        for i, v in enumerate(indices_visiveis):
+            if valor['texto'] in lista_tarefas[v]['texto']:
+                indices_ordenados.append(v)
+    return indices_ordenados
+
+
+def ordenar_prioridade(indices_visiveis):
+    tarefas_ordenadas = []
+    for indices in indices_visiveis:
+        if lista_tarefas[indices]["prioridade"] == "Alta":
+            ordenacao = {"indice": indices,
+                         "peso": 0}
+            tarefas_ordenadas.append(ordenacao)
+        elif lista_tarefas[indices]["prioridade"] == "M\u00e9dia":
+            ordenacao = {"indice": indices,
+                         "peso": 1}
+            tarefas_ordenadas.append(ordenacao)
+        else:
+            ordenacao = {"indice": indices,
+                         "peso": 2}
+            tarefas_ordenadas.append(ordenacao)
+    tarefas_ordenadas.sort(
+        key=lambda tarefas_ordenadas: tarefas_ordenadas["peso"])
+    indices_ordenados = []
+    for indices in tarefas_ordenadas:
+        indices_ordenados.append(indices['indice'])
+    return indices_ordenados
+
+
+def ordenar_pendentes(indices_visiveis):
+    tarefas_ordenadas = lista_tarefas.copy()
+    tarefas_ordenadas.sort(
+        key=lambda tarefas_ordenadas: tarefas_ordenadas['concluida'])
+    indices_ordenados = []
+    for indice, valor in enumerate(tarefas_ordenadas):
         for i, v in enumerate(indices_visiveis):
             if valor['texto'] in lista_tarefas[v]['texto']:
                 indices_ordenados.append(v)
@@ -50,16 +97,6 @@ def alterar_tarefa(entrada_str, indice_real, tarefas, prioridade):
     tarefas[indice_real].update({"prioridade": prioridade})
     salvar_dados(tarefas)
     return tarefas
-
-
-def carregar_lista():
-    if os.path.exists(CAMINHO_ARQUIVO):
-        try:
-            with open(CAMINHO_ARQUIVO, "r") as arquivo:
-                return json.load(arquivo)
-        except json.JSONDecodeError:
-            return []
-        return []
 
 
 def filtro(status, lista_tarefas):

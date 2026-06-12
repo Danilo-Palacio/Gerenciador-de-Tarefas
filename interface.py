@@ -3,7 +3,7 @@ from tkinter import ttk
 from tkinter import messagebox
 from tarefas import remover_tarefa, adicionar_tarefa, alterar_tarefa, filtro
 from tarefas import carregar_lista, concluir_tarefa, obter_texto_tarefa
-from tarefas import ordenar_alfabetica
+from tarefas import ordenar_alfabetica, ordenar_prioridade, ordenar_pendentes
 
 lista_tarefas = carregar_lista()
 indices_visiveis = []
@@ -14,12 +14,15 @@ ordenacao_ativa = ""
 
 def ordenacao(text, indices):
     if text == "Alfabética":
-        print(f'ordenou para: {text}')
         ordenado = ordenar_alfabetica(indices)
-        print(f"indices: {ordenado}")
+        return ordenado
+    elif text == "Prioridade":
+        ordenado = ordenar_prioridade(indices)
+        return ordenado
+    elif text == "Pendentes":
+        ordenado = ordenar_pendentes(indices)
         return ordenado
     else:
-        print('Ainda não fez')
         return indices
 
 
@@ -29,9 +32,7 @@ def atualizar_interface(list_box):
     busca = pesquisa(texto_pesquisa, indices_filtrados)
     indices_finais = busca
     ordenado = ordenacao(ordenacao_ativa, indices_finais)
-    print(f'ordenado: {ordenado}')
     indices_visiveis = ordenado
-    print(f'indices_visiveis: {indices_visiveis}')
     texto_render = texto_listbox(indices_visiveis)
     renderizar_tela(texto_render, list_box)
 
@@ -46,8 +47,7 @@ def texto_listbox(indice):
             texto = "X"
         prioridade = lista_tarefas[tarefa]["prioridade"]
         texto_completo = (
-            f"[{prioridade}] | [{texto}] "
-            f"{lista_tarefas[tarefa]['texto']}"
+            f"[{prioridade}] | [{texto}] " f"{lista_tarefas[tarefa]['texto']}"
         )
         lista_completa.append(texto_completo)
     return lista_completa
@@ -65,7 +65,7 @@ def indice_selecionado(list_box):
         messagebox.showerror(
             "Nenhuma tarefa selecionada",
             "Selecione uma tarefa para prosseguir"
-            )
+        )
         return None
     else:
         indice_real = indices_visiveis[indice_escolhido[0]]
@@ -166,28 +166,27 @@ def interface_popup(root, list_box):
     entrada = tk.Entry(popup)
     entrada.insert(0, tarefa)
     entrada.pack(padx=5, anchor=tk.CENTER, fill="x")
-    entrada.bind("<Return>", lambda e: fluxo_alterar(
-        indice_real, entrada, popup, list_box, combo_prioridade_alterar))
+    entrada.bind(
+        "<Return>",
+        lambda e: fluxo_alterar(
+            indice_real, entrada, popup, list_box, combo_prioridade_alterar
+        ),
+    )
 
     combo_prioridade_alterar = ttk.Combobox(
-        popup,
-        values=['Baixa', 'Média', 'Alta'],
-        state='readonly'
+        popup, values=["Baixa", "Média", "Alta"], state="readonly"
     )
-    prioridade_atual = lista_tarefas[indice_real].get(
-        "prioridade",
-        "Baixa"
-    )
+    prioridade_atual = lista_tarefas[indice_real].get("prioridade", "Baixa")
     combo_prioridade_alterar.set(prioridade_atual)
     combo_prioridade_alterar.pack()
 
-    botao_salvar = tk.Button(popup, text="Salvar",
-                             command=lambda: fluxo_alterar(
-                                   indice_real,
-                                   entrada,
-                                   popup,
-                                   list_box,
-                                   combo_prioridade_alterar))
+    botao_salvar = tk.Button(
+        popup,
+        text="Salvar",
+        command=lambda: fluxo_alterar(
+            indice_real, entrada, popup, list_box, combo_prioridade_alterar
+        ),
+    )
     botao_salvar.pack(pady=5, padx=5, anchor=tk.CENTER, fill="x")
 
 
@@ -211,17 +210,18 @@ def iniciar_app():
     campo_pesquisa = tk.Entry(frame_pesquisa)
     campo_pesquisa.insert(0, "Buscar tarefa...")
     campo_pesquisa.pack(pady=5, fill="x")
-    campo_pesquisa.bind("<FocusIn>",
-                        lambda e: campo_pesquisa.delete(0, tk.END))
-    campo_pesquisa.bind("<KeyRelease>",
-                        lambda e: atualiza_pesquisa(
-                            campo_pesquisa.get(),
-                            list_box))
+    campo_pesquisa.bind("<FocusIn>", lambda e: campo_pesquisa.delete(
+        0, tk.END))
+    campo_pesquisa.bind(
+        "<KeyRelease>", lambda e: atualiza_pesquisa(
+            campo_pesquisa.get(), list_box)
+    )
 
-    botao_ordenacao = tk.Button(frame_pesquisa,
-                                text="Prioridade",
-                                command=lambda: interface_botao_ordenacao(
-                                    botao_ordenacao, list_box))
+    botao_ordenacao = tk.Button(
+        frame_pesquisa,
+        text="Prioridade",
+        command=lambda: interface_botao_ordenacao(botao_ordenacao, list_box),
+    )
     botao_ordenacao.pack(fill="x")
 
     frame_campo_inserir = tk.Frame(janela)
@@ -231,47 +231,51 @@ def iniciar_app():
     campo_texto.insert(0, "Digite uma nova tarefa")
     campo_texto.pack(fill="x")
     campo_texto.bind("<FocusIn>", lambda e: campo_texto.delete(0, tk.END))
-    campo_texto.bind("<Return>",
-                     lambda e: acao_tarefa(
-                         list_box,
-                         "adicionar",
-                         campo_texto,
-                         botoes_filtro,
-                         combo_prioridade))
+    campo_texto.bind(
+        "<Return>",
+        lambda e: acao_tarefa(
+            list_box, "adicionar", campo_texto, botoes_filtro, combo_prioridade
+        ),
+    )
 
     combo_prioridade = ttk.Combobox(
-        frame_campo_inserir,
-        values=['Baixa', 'Média', 'Alta'],
-        state='readonly'
+        frame_campo_inserir, values=[
+            "Baixa", "Média", "Alta"], state="readonly"
     )
     combo_prioridade.set("Baixa")
     combo_prioridade.pack(side=tk.LEFT)
 
     botao_inserir_tarefa = ttk.Button(
-        frame_campo_inserir, text="Inserir", command=lambda: acao_tarefa(
-                         list_box,
-                         "adicionar",
-                         campo_texto,
-                         botoes_filtro,
-                         combo_prioridade))
+        frame_campo_inserir,
+        text="Inserir",
+        command=lambda: acao_tarefa(
+            list_box, "adicionar", campo_texto, botoes_filtro, combo_prioridade
+        ),
+    )
     botao_inserir_tarefa.pack(side=tk.LEFT, fill="x")
 
     frame_botoes_filtro = tk.Frame(janela)
     frame_botoes_filtro.pack(pady=5)
 
     botao_todas = ttk.Button(
-        frame_botoes_filtro, text="Todas",
-        command=lambda: atualiza_status("Todas", list_box))
+        frame_botoes_filtro,
+        text="Todas",
+        command=lambda: atualiza_status("Todas", list_box),
+    )
     botao_todas.pack(side=tk.LEFT)
 
     botao_concluidas = ttk.Button(
-        frame_botoes_filtro, text="Concluidas",
-        command=lambda: atualiza_status("Concluidas", list_box))
+        frame_botoes_filtro,
+        text="Concluidas",
+        command=lambda: atualiza_status("Concluidas", list_box),
+    )
     botao_concluidas.pack(side=tk.LEFT)
 
     botao_pendentes = ttk.Button(
-        frame_botoes_filtro, text="Pendentes",
-        command=lambda: atualiza_status("Pendentes", list_box))
+        frame_botoes_filtro,
+        text="Pendentes",
+        command=lambda: atualiza_status("Pendentes", list_box),
+    )
     botao_pendentes.pack(side=tk.LEFT)
 
     list_box.pack(pady=10, fill="both", expand=True)
@@ -279,8 +283,8 @@ def iniciar_app():
     botoes_filtro = {
         "Todas": botao_todas,
         "Concluidas": botao_concluidas,
-        "Pendentes": botao_pendentes
-        }
+        "Pendentes": botao_pendentes,
+    }
 
     atualizar_botao_filtro(botoes_filtro)
     atualizar_interface(list_box)
@@ -289,28 +293,28 @@ def iniciar_app():
     frame_botoes_editar.pack(pady=5)
 
     botao_remover_tarefa = ttk.Button(
-        frame_botoes_editar, text="Remover",
+        frame_botoes_editar,
+        text="Remover",
         command=lambda: acao_tarefa(
-            list_box,
-            "remover",
-            campo_texto,
-            botoes_filtro,
-            None))
+            list_box, "remover", campo_texto, botoes_filtro, None
+        ),
+    )
     botao_remover_tarefa.pack(side=tk.LEFT)
 
     botao_alterar_tarefa = ttk.Button(
-        frame_botoes_editar, text="Alterar",
-        command=lambda: interface_popup(root, list_box))
+        frame_botoes_editar,
+        text="Alterar",
+        command=lambda: interface_popup(root, list_box),
+    )
     botao_alterar_tarefa.pack(side=tk.RIGHT)
 
     botao_concluir_tarefa = ttk.Button(
-        janela, text="Concluir",
+        janela,
+        text="Concluir",
         command=lambda: acao_tarefa(
-            list_box,
-            "concluir",
-            campo_texto,
-            botoes_filtro,
-            None))
+            list_box, "concluir", campo_texto, botoes_filtro, None
+        ),
+    )
     botao_concluir_tarefa.pack(pady=5, fill="x")
 
     botao_sair = ttk.Button(janela, text="Quit", command=root.destroy)
