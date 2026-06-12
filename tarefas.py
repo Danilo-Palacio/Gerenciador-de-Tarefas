@@ -18,13 +18,11 @@ lista_tarefas = carregar_lista()
 
 
 def ordenar_alfabetica(indices_visiveis):
-    lista_ordenada = lista_tarefas.copy()
-    lista_ordenada.sort(key=lambda lista_ordenada: lista_ordenada["texto"])
-    indices_ordenados = []
-    for indice, valor in enumerate(lista_ordenada):
-        for i, v in enumerate(indices_visiveis):
-            if valor['texto'] in lista_tarefas[v]['texto']:
-                indices_ordenados.append(v)
+    indices_ordenados = sorted(
+        indices_visiveis,
+        key=lambda indice: lista_tarefas[indice]['texto']
+    )
+    print(f'indices_ordenados: {indices_ordenados}')
     return indices_ordenados
 
 
@@ -52,14 +50,11 @@ def ordenar_prioridade(indices_visiveis):
 
 
 def ordenar_pendentes(indices_visiveis):
-    tarefas_ordenadas = lista_tarefas.copy()
-    tarefas_ordenadas.sort(
-        key=lambda tarefas_ordenadas: tarefas_ordenadas['concluida'])
-    indices_ordenados = []
-    for indice, valor in enumerate(tarefas_ordenadas):
-        for i, v in enumerate(indices_visiveis):
-            if valor['texto'] in lista_tarefas[v]['texto']:
-                indices_ordenados.append(v)
+    indices_ordenados = sorted(
+        indices_visiveis,
+        key=lambda indice: lista_tarefas[indice]['concluida']
+    )
+    print(f'indices_ordenados: {indices_ordenados}')
     return indices_ordenados
 
 
