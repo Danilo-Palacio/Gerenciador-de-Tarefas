@@ -86,9 +86,16 @@ def acao_tarefa(list_box, acao, campo_texto, botoes_filtro, combo_prioridade):
     elif acao == "adicionar":
         prioridade = combo_prioridade.get()
         texto = campo_texto.get().strip()
-        adicionar_tarefa(texto, lista_tarefas, prioridade)
-        campo_texto.delete(0, tk.END)
-        campo_texto.focus()
+        if texto == "Digite uma nova tarefa":
+            messagebox.showerror(
+                "Nenhuma tarefa para inserir",
+                'Clique no campo "Digite uma nova tarefa"'
+                ' para adicionar uma tarefa'
+            )
+        else:
+            adicionar_tarefa(texto, lista_tarefas, prioridade)
+            campo_texto.delete(0, tk.END)
+            campo_texto.focus()
     else:
         return
     atualizar_botao_filtro(botoes_filtro)

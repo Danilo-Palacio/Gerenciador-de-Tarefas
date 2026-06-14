@@ -33,5 +33,10 @@
         "texto": "Aviao",
         "concluida": false,
         "prioridade": "Baixa"
+    },
+    {
+        "texto": "Adicionei",
+        "concluida": true,
+        "prioridade": "M\u00e9dia"
     }
 ]
