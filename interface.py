@@ -12,15 +12,15 @@ texto_pesquisa = ""
 ordenacao_ativa = ""
 
 
-def ordenacao(text, indices):
+def tipo_ordenacao(text, indices):
     if text == "Alfabética":
-        ordenado = ordenar_alfabetica(indices)
+        ordenado = ordenar_alfabetica(indices, lista_tarefas)
         return ordenado
     elif text == "Prioridade":
-        ordenado = ordenar_prioridade(indices)
+        ordenado = ordenar_prioridade(indices, lista_tarefas)
         return ordenado
     elif text == "Pendentes":
-        ordenado = ordenar_pendentes(indices)
+        ordenado = ordenar_pendentes(indices, lista_tarefas)
         return ordenado
     else:
         return indices
@@ -31,7 +31,7 @@ def atualizar_interface(list_box):
     indices_filtrados = filtro(status_ativo, lista_tarefas)
     busca = pesquisa(texto_pesquisa, indices_filtrados)
     indices_finais = busca
-    ordenado = ordenacao(ordenacao_ativa, indices_finais)
+    ordenado = tipo_ordenacao(ordenacao_ativa, indices_finais)
     indices_visiveis = ordenado
     texto_render = texto_listbox(indices_visiveis)
     renderizar_tela(texto_render, list_box)
@@ -134,7 +134,7 @@ def atualiza_status(status, list_box):
     atualizar_interface(list_box)
 
 
-def interface_botao_ordenacao(status, list_box):
+def alternar_ordenacao(status, list_box):
     global ordenacao_ativa
     text = status.cget("text")
     if text == "Prioridade":
@@ -220,7 +220,7 @@ def iniciar_app():
     botao_ordenacao = tk.Button(
         frame_pesquisa,
         text="Prioridade",
-        command=lambda: interface_botao_ordenacao(botao_ordenacao, list_box),
+        command=lambda: alternar_ordenacao(botao_ordenacao, list_box),
     )
     botao_ordenacao.pack(fill="x")
 

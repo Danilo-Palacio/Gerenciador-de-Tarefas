@@ -14,47 +14,28 @@ def carregar_lista():
         return []
 
 
-lista_tarefas = carregar_lista()
-
-
-def ordenar_alfabetica(indices_visiveis):
+def ordenar_alfabetica(indices_visiveis, lista_tarefas):
     indices_ordenados = sorted(
         indices_visiveis,
         key=lambda indice: lista_tarefas[indice]['texto']
     )
-    print(f'indices_ordenados: {indices_ordenados}')
     return indices_ordenados
 
 
-def ordenar_prioridade(indices_visiveis):
-    tarefas_ordenadas = []
-    for indices in indices_visiveis:
-        if lista_tarefas[indices]["prioridade"] == "Alta":
-            ordenacao = {"indice": indices,
-                         "peso": 0}
-            tarefas_ordenadas.append(ordenacao)
-        elif lista_tarefas[indices]["prioridade"] == "M\u00e9dia":
-            ordenacao = {"indice": indices,
-                         "peso": 1}
-            tarefas_ordenadas.append(ordenacao)
-        else:
-            ordenacao = {"indice": indices,
-                         "peso": 2}
-            tarefas_ordenadas.append(ordenacao)
-    tarefas_ordenadas.sort(
-        key=lambda tarefas_ordenadas: tarefas_ordenadas["peso"])
-    indices_ordenados = []
-    for indices in tarefas_ordenadas:
-        indices_ordenados.append(indices['indice'])
+def ordenar_prioridade(indices_visiveis, lista_tarefas):
+    pesos = {'Alta': 0, 'Média': 1, 'Baixa': 2}
+    indices_ordenados = sorted(
+        indices_visiveis,
+        key=lambda indice: pesos.get(lista_tarefas[indice]['prioridade'], 3)
+    )
     return indices_ordenados
 
 
-def ordenar_pendentes(indices_visiveis):
+def ordenar_pendentes(indices_visiveis, lista_tarefas):
     indices_ordenados = sorted(
         indices_visiveis,
         key=lambda indice: lista_tarefas[indice]['concluida']
     )
-    print(f'indices_ordenados: {indices_ordenados}')
     return indices_ordenados
 
 
